@@ -582,8 +582,8 @@ function lineChart(host, readout, cfg) {
   const sx = x => m.l + (x - cfg.xMin) / (cfg.xMax - cfg.xMin) * iw, sy = y => m.t + ih - y / yMax * ih;
   let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${cfg.label}" preserveAspectRatio="xMidYMid meet">`;
   if (cfg.shade) svg += `<rect class="chart-shade" x="${sx(cfg.shade.from)}" y="${m.t}" width="${sx(cfg.shade.to) - sx(cfg.shade.from)}" height="${ih}"></rect><text class="chart-shade-label" x="${sx(cfg.shade.from) + 4}" y="${m.t + 11}">${cfg.shade.label}</text>`;
-  for (let i = 0; i <= 4; i++) { const y = yMax * i / 4; svg += `<line class="chart-gridline" x1="${m.l}" x2="${W - m.r}" y1="${sy(y)}" y2="${sy(y)}"></line><text class="chart-tick" x="${m.l - 8}" y="${sy(y) + 3}" text-anchor="end">${cfg.yFormat(y, yMax)}</text>`; }
-  for (const x of cfg.xTicks) svg += `<line class="chart-axis" x1="${sx(x)}" x2="${sx(x)}" y1="${m.t + ih}" y2="${m.t + ih + 4}"></line><text class="chart-tick" x="${sx(x)}" y="${m.t + ih + 16}" text-anchor="middle">${cfg.xFormat(x)}</text>`;
+  for (let i = 0; i <= 4; i++) { const y = yMax * i / 4; svg += `<line class="chart-gridline" x1="${m.l}" x2="${W - m.r}" y1="${sy(y)}" y2="${sy(y)}"></line><text class="chart-tick" x="${m.l - 8}" y="${sy(y) + 4.5}" text-anchor="end">${cfg.yFormat(y, yMax)}</text>`; }
+  for (const x of cfg.xTicks) svg += `<line class="chart-axis" x1="${sx(x)}" x2="${sx(x)}" y1="${m.t + ih}" y2="${m.t + ih + 4}"></line><text class="chart-tick" x="${sx(x)}" y="${m.t + ih + 18}" text-anchor="middle">${cfg.xFormat(x)}</text>`;
   svg += `<text class="chart-title" x="${m.l + iw / 2}" y="${H - 6}" text-anchor="middle">${cfg.xTitle}</text><line class="chart-axis" x1="${m.l}" x2="${W - m.r}" y1="${m.t + ih}" y2="${m.t + ih}"></line>`;
   cfg.series.forEach((item, index) => {
     svg += `<polyline fill="none" stroke="${item.color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" ${item.dash ? 'stroke-dasharray="6 4"' : ''} points="${item.points.map(point => `${sx(point[0]).toFixed(1)},${sy(point[1]).toFixed(1)}`).join(' ')}"></polyline>`;

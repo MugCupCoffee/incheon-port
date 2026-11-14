@@ -430,3 +430,8 @@ td.numeric { color: var(--ink); font-weight: 600; }
   .param-panel .param-card-head .param-input { flex: 1 1 100%; flex-wrap: nowrap; }
   .param-input span { white-space: nowrap; }
 }
+
+/* 파라미터 그래프: 축 수치·축 제목 진하게/크게, 읽기값 크게 */
+.chart-tick { fill: #0b0f14; font-size: 13px; font-weight: 500; }
+.chart-title { fill: #1a2230; font-size: 13px; font-weight: 600; }
+.chart-readout { font-size: 15px; font-weight: 700; line-height: 20px; }
