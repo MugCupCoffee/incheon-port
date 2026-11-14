@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="입항 물동량 시트로 항만별 검역 현황을 확인하는 운영 화면" />
+    <title>인천항 검역 시스템</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="dashboard.css?v=10" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#top" aria-label="인천항 검역 시스템 첫 화면">
+          <img src="incheon_port_logo.png" alt="인천항만공사 로고" />
+          <span class="brand-divider" aria-hidden="true"></span>
+          <span class="brand-title">인천항 검역 시스템</span>
+        </a>
+        <span class="local-note"><span class="status-dot" aria-hidden="true"></span> 업로드 파일은 이 브라우저에서 읽습니다</span>
+      </div>
+    </header>
+
+    <main id="main" class="app-shell">
+      <section class="page-heading" id="top">
+        <div>
+          <h1>입항 항만 검역 현황</h1>
+        </div>
+          <label class="period-field" for="reference-month">
+          <span>조회 기준 연월</span>
+          <input id="reference-month" type="month" />
+          <small class="period-hint">과거 조회 또는 업로드 자료의 기준월</small>
+        </label>
+      </section>
+
+      <nav class="workspace-tabs" id="workspace-tabs" role="tablist" aria-label="작업 화면">
+        <button class="workspace-tab is-active" id="upload-tab" type="button" role="tab" data-view="upload-view" aria-controls="upload-view" aria-selected="true">자료 등록</button>
+        <button class="workspace-tab" id="params-tab" type="button" role="tab" data-view="params-view" aria-controls="params-view" aria-selected="false" tabindex="-1">파라미터</button>
+        <button class="workspace-tab" id="operations-tab" type="button" role="tab" data-view="operations-view" aria-controls="operations-view" aria-selected="false" tabindex="-1" disabled>자원배분</button>
+      </nav>
+
+      <section class="workspace-view" id="upload-view" role="tabpanel" aria-labelledby="upload-tab">
+        <div class="upload-layout">
+          <div class="upload-main">
+            <div class="section-heading">
+              <div>
+              <p class="eyebrow">입항 목록</p>
+                <h2 id="upload-title">입항 물동량 자료 등록</h2>
+              </div>
+              <span class="step-mark">입력 자료</span>
+            </div>
+
+            <label class="file-drop" id="file-drop" for="workbook-input">
+              <input id="workbook-input" type="file" accept=".xlsx,.xls,.xlsb,.csv" />
+              <span class="upload-glyph" aria-hidden="true">
+                <svg viewBox="0 0 32 32" focusable="false"><path d="M16 21V6m0 0-6 6m6-6 6 6M6 19v7h20v-7" /></svg>
+              </span>
+              <strong id="file-prompt">엑셀 시트를 끌어오거나 파일을 선택하세요</strong>
+              <span class="file-types">.xlsx · .xls · .xlsb · .csv, 최대 20MB</span>
+              <span class="browse-button">파일 선택</span>
+            </label>
+            <p class="upload-feedback" id="upload-feedback" role="status" aria-live="polite">항만 ID와 물동량을 읽으면 파라미터 탭으로 이동합니다.</p>
+
+            <div class="file-options" id="file-options" hidden>
+              <label class="form-field" for="sheet-select">읽을 시트
+                <select id="sheet-select"></select>
+              </label>
+              <details id="mapping-details"><summary>엑셀 열 연결 확인·변경</summary><div class="mapping-grid" id="column-mapping" aria-label="엑셀 열 연결"></div></details>
+              <button id="show-operations" class="primary-button" type="button" disabled>이 시트로 현황 보기 <span aria-hidden="true">→</span></button>
+            </div>
+          </div>
+
+          <aside class="format-card" aria-labelledby="format-title">
+            <p class="eyebrow">시트 열 연결</p>
+            <h2 id="format-title">시트 열 안내</h2>
+            <p>항만 ID로 국가·항만명·좌표를 연결합니다. 열 제목이 다르면 업로드 후 직접 지정할 수 있습니다.</p>
+            <dl class="field-guide">
+              <div><dt>기본 열</dt><dd>port_id · year · month · empty_teu</dd></div>
+              <div><dt>검사 자료</dt><dd>검사량 · 전월 검사량 (선택, 참고용)</dd></div>
+              <div><dt>연월 없는 시트</dt><dd>선택한 기준월에 등록<br />미선택 시 현재월 사용</dd></div>
+            </dl>
+            <div class="data-note"><strong>검사량은 파라미터로 계산</strong><span>검사량은 파라미터 탭의 γ·B로 계산합니다. 시트에 검사량 열이 있으면 참고값으로만 함께 표시합니다.</span></div>
+            <a class="template-link" href="운영자료_양식.csv" download>운영 엑셀 열 양식 받기 (CSV)</a>
+            <div class="history-block"><h3>과거 자료로 조회</h3><p id="history-caption"></p><p>2021년 9월 이후 물동량은 추정값을 포함합니다.</p><div class="month-buttons" id="month-buttons" role="group" aria-label="2026년 월 선택"><button class="month-btn" type="button" data-month="2026-01" aria-pressed="false">1월</button><button class="month-btn" type="button" data-month="2026-02" aria-pressed="false">2월</button><button class="month-btn" type="button" data-month="2026-03" aria-pressed="false">3월</button><button class="month-btn" type="button" data-month="2026-04" aria-pressed="false">4월</button><button class="month-btn" type="button" data-month="2026-05" aria-pressed="false">5월</button><button class="month-btn" type="button" data-month="2026-06" aria-pressed="false">6월</button><button class="month-btn" type="button" data-month="2026-07" aria-pressed="false">7월</button><button class="month-btn" type="button" data-month="2026-08" aria-pressed="false">8월</button></div><button class="secondary-button" id="open-history" type="button">기준자료 열기 <span aria-hidden="true">→</span></button></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="workspace-view" id="params-view" role="tabpanel" aria-labelledby="params-tab" hidden>
+        <div class="section-heading operations-heading">
+          <div>
+            <p class="eyebrow">배분 규칙</p>
+            <h2 id="params-title">검역 자원 파라미터</h2>
+          </div>
+          <button class="secondary-button" id="reset-params" type="button">기본값으로 되돌리기</button>
+        </div>
+
+        <p class="data-warning" id="params-warning" role="status" hidden></p>
+
+        <div class="kpi-grid" id="param-kpis" aria-live="polite">
+          <article class="kpi-card kpi-card--accent"><span>위험 포착 비율 <small>가상 정답 기준</small></span><strong id="kpi-capture">—</strong><small id="kpi-capture-note"></small></article>
+          <article class="kpi-card"><span>현행 무작위 대비 포착 <small>더 잡는 비율</small></span><strong id="kpi-ratio">—</strong><small id="kpi-ratio-note"></small></article>
+          <article class="kpi-card"><span>배분 일치도 <small>1−TV, 높을수록 좋음</small></span><strong id="kpi-tv">—</strong><small id="kpi-tv-note"></small></article>
+          <article class="kpi-card"><span>검사가 닿는 항만</span><strong id="kpi-ports">—</strong><small id="kpi-ports-note"></small></article>
+        </div>
+
+        <div class="param-split">
+          <article class="param-panel" aria-labelledby="gamma-title">
+            <div class="param-card-head">
+              <div><h3 id="gamma-title">위험 집중도 γ</h3></div>
+              <div class="param-input"><input id="gamma-value" type="number" min="0" max="2" step="0.05" inputmode="decimal" aria-label="위험 집중도 γ 값" aria-describedby="gamma-feedback" /></div>
+            </div>
+            <div class="chart-card-head"><h4>γ별 배분 일치도</h4><span class="chart-readout" id="readout-gamma-tv"></span></div>
+            <div id="chart-gamma-tv" class="chart"></div>
+            <div class="pill-wrap">
+              <div class="pill" id="gamma-slider" role="slider" tabindex="0" aria-label="위험 집중도 γ 슬라이더" aria-valuemin="0" aria-valuemax="2" aria-valuenow="0.5"><span class="pill-fill"></span><span class="pill-knob"></span></div>
+              <div class="range-ends range-ends--three"><span>0 · 물동량 비례</span><span>1 · 위험 비중 비례</span><span>2 · 위험 집중</span></div>
+            </div>
+            <p id="gamma-feedback" class="field-error" role="status"></p>
+          </article>
+          <article class="param-panel" aria-labelledby="budget-title">
+            <div class="param-card-head">
+              <div><h3 id="budget-title">월 검사량 B</h3></div>
+              <div class="param-input"><input id="budget-value" type="number" min="1" step="1" inputmode="numeric" aria-label="월 검사량 B (TEU)" aria-describedby="budget-feedback" /><span>TEU/월</span><input id="budget-pct" type="number" min="0.01" max="100" step="0.01" inputmode="decimal" style="width:76px" aria-label="월 검사량 B (배분 대상 총물동량 대비 %)" aria-describedby="budget-feedback" /><span>%</span></div>
+            </div>
+            <div class="chart-card-head"><h4>B별 위험 포착 비율</h4><span class="chart-readout" id="readout-budget-capture"></span></div>
+            <div id="chart-budget-capture" class="chart"></div>
+            <div class="pill-wrap">
+              <div class="pill pill--b" id="budget-slider" role="slider" tabindex="0" aria-label="월 검사량 슬라이더" aria-valuemin="5" aria-valuemax="100" aria-valuenow="25"><span class="pill-fill"></span><span class="pill-knob"></span></div>
+              <div class="range-ends"><span>5</span><span id="budget-range-max">100</span></div>
+            </div>
+            <p id="budget-feedback" class="field-error" role="status"></p>
+          </article>
+        </div>
+
+        <p class="param-footnote" id="param-footnote">위험 포착 비율은 가상 정답 p*(서식 적합도·기후 유사도·물동량으로 만든 위험 분포)에서 검사가 포착하는 비율이며 실제 차단율이 아닙니다. 절대값은 작아 ‘현행 대비 몇 % 더 잡는지’로 읽는 것이 맞습니다. 현행은 전체 물동량에서 무작위로 B개를 뽑는 방식이고, 위험 비중은 74종 연보 기반 C<sub>g</sub>(적발 표본이 없는 상태, n=0)입니다.</p>
+      </section>
+
+      <section class="workspace-view" id="operations-view" role="tabpanel" aria-labelledby="operations-tab" hidden>
+        <div class="section-heading operations-heading">
+          <div>
+            <h2 id="operations-title">항만별 검역 현황</h2>
+          </div>
+          <div class="heading-actions"><button class="secondary-button" id="open-params" type="button">파라미터 조정</button><button class="secondary-button" id="replace-file" type="button">자료 바꾸기</button></div>
+        </div>
+
+        <div class="summary-grid" aria-label="전체 현황 요약">
+          <article class="summary-card"><span>등록 항만 수</span><strong id="summary-ports">—</strong></article>
+          <article class="summary-card"><span>총 물동량 (TEU)</span><strong id="summary-volume">—</strong></article>
+          <article class="summary-card summary-card--accent"><span>총 검사량</span><strong id="summary-inspections">—</strong></article>
+        </div>
+        <p class="data-warning" id="data-warning" role="status" hidden></p>
+
+        <section class="port-section" aria-labelledby="port-list-title">
+          <div class="list-heading">
+            <div><p class="eyebrow">항만 선택</p><h3 id="port-list-title">화물 출발 항만</h3></div>
+            <span id="port-list-count" class="muted-copy"></span>
+          </div>
+          <div class="port-rail" id="port-rail" role="group" aria-label="항만 선택"></div>
+        </section>
+
+        <section class="manifest-card" id="manifest-card" aria-labelledby="manifest-title">
+          <div class="manifest-heading">
+            <div><p class="eyebrow">전체 항만</p><h3 id="manifest-title">입항 현황표</h3></div>
+            <div class="manifest-tools"><div class="sort-toggle" role="group" aria-label="입항 현황표 정렬"><button class="sort-btn" type="button" data-sort="inspection" aria-pressed="true">검사량 많은 순</button><button class="sort-btn" type="button" data-sort="name" aria-pressed="false">국가·항만순</button></div><span id="manifest-period" class="period-chip">연월 미지정</span></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">국가</th><th scope="col">출발 항만</th><th scope="col" class="numeric">물동량</th><th scope="col" class="numeric">위험 비중</th><th scope="col" class="numeric" id="sort-inspection-head">검사량 (TEU) ▼</th><th scope="col">물동량 출처</th></tr></thead>
+              <tbody id="manifest-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="port-detail" id="port-detail" aria-labelledby="detail-title" hidden>
+          <div class="detail-heading">
+            <div><p class="eyebrow">선택 항만</p><h3 id="detail-title">항만을 선택하세요</h3><p id="detail-country" class="muted-copy">항만 목록에서 이름을 선택하면 상세 정보를 표시합니다.</p></div>
+            <div class="detail-actions"><span id="detail-status" class="detail-status">상세 보기</span><button class="text-button" id="back-to-all" type="button">전체 항만 보기</button></div>
+          </div>
+          <div class="detail-grid">
+            <article class="detail-card species-card"><div class="detail-card-heading"><h4>외래종 서식 적합도</h4><span id="species-basis"></span></div><div id="species-list" class="species-list" aria-live="polite"><p class="empty-copy">항만을 선택하세요</p></div><p class="species-footnote">적합도순 정렬이며 실제 출현·유입확률을 뜻하지 않습니다. GBIF는 100km 내 학습용 기록이며 —는 기록값 없음을 뜻합니다.</p></article>
+            <article class="detail-card change-card"><div class="detail-card-heading"><h4>전월 대비 검사량</h4><span>월간 변화</span></div><strong id="inspection-change" class="change-value">—</strong><p id="change-caption" class="detail-footnote">전월 검사량 열이 필요합니다.</p></article>
+            <article class="detail-card weather-card"><div class="detail-card-heading"><h4>현재 항만 날씨</h4><span id="weather-time">현재 시점</span></div><strong id="weather-main" class="weather-main">—</strong><p id="weather-caption" class="detail-footnote">항만 선택 후 날씨 정보를 불러옵니다.</p><p id="climate-caption" class="climate-caption"></p><a class="weather-credit" href="https://open-meteo.com/" target="_blank" rel="noopener">Weather data by Open-Meteo</a></article>
+          </div>
+
+          <article class="forecast-card" aria-labelledby="forecast-title">
+            <div class="forecast-copy"><p class="eyebrow" id="forecast-period">다음 달 가정</p><h4 id="forecast-title">예상 물동량 조정</h4><p>이 항만의 물동량만 바꾸고 다른 항만은 이번 달 값을 유지한 채, 파라미터 탭의 γ·B로 검사량을 다시 계산합니다.</p></div>
+            <div class="forecast-control"><div class="forecast-number"><label for="forecast-value">예상 물동량</label><div class="forecast-input"><input id="forecast-value" type="number" min="0" step="any" inputmode="decimal" aria-label="다음 달 예상 물동량" aria-describedby="forecast-feedback" /><span>TEU</span></div></div><p id="forecast-feedback" class="field-error" role="status"></p><label class="sr-only" for="forecast-range">예상 물동량 슬라이더</label><input id="forecast-range" type="range" min="0" max="100000" step="any" value="0" disabled /><div class="range-ends"><span>0</span><span id="forecast-range-max">100,000 TEU</span></div><div class="forecast-result"><span>예상 검사량</span><strong id="forecast-inspection">계산 중…</strong></div></div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>INCHEON PORT · BIOSECURITY</span><span>운영자료 기반 의사결정 지원 화면</span></footer>
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="data/reference.js"></script>
+    <script src="data/model_params.js?v=4"></script>
+    <script src="model.js?v=4"></script>
+    <script src="allocation.js?v=4"></script>
+    <script src="app.js?v=20261115f"></script>
+  </body>
+</html>
